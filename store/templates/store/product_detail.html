@@ -1,0 +1,60 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Your existing product detail page content -->
+
+<div class="row main-content" style="align-items: inherit;">
+    <!-- Left column -->
+    <div class="col-sm-6 col-xs-12 main-content">
+        <div class="box-element-detail">
+            <img class="img-fluid main-image" id="mainImage" src="{{ product.imageURL }}" alt="#">
+        </div>
+        <div class="product-image-gallery">
+            {% for image in product.productimage_set.all %}
+                <img src="{{ image.image.url }}" alt="{{ product.name }} Image" onclick="changeMainImage('{{ image.image.url }}')">
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Right column -->
+    <div class="col-sm-6 col-xs-12">
+        <div class="text">
+            <h2 style="margin-bottom: 1.5rem;">{{ product.name }}</h2>
+            <h5><strong>Price:</strong> ${{ product.price }}</h5>
+
+            <p style="margin-top: 1.5rem;"><strong>Material:</strong> {{ product.material }}</p>
+            <p style="margin-bottom: 1.5rem;"><strong>Sole:</strong> {{ product.additional_material }}</p>
+            <p>{{ product.description }}</p>
+            <form method="POST" action="{% url 'update_item' %}" class="product-form">
+                {% csrf_token %}
+                <div class="form-group size-selection">
+                    <label for="size">Select Size:</label>
+                    <select class="form-control" id="size" name="size">
+                        {% for size_variant in product.sizevariant_set.all %}
+                            <option value="{{ size_variant.size.id }}">{{ size_variant.size.size_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button
+                    data-product="{{ product.id }}"
+                    data-action="add"
+                    class="btn btn-outline-secondary-detail btn-lg add-btn update-cart"
+                >
+                    Add to Cart
+                </button>
+            </form>
+
+
+
+        </div>
+        <!-- Rest of the product detail page content -->
+    </div>
+</div>
+<script>
+    // JavaScript function to change the main image
+    function changeMainImage(imageUrl) {
+        var mainImage = document.getElementById('mainImage');
+        mainImage.src = imageUrl;
+    }
+</script>
+{% endblock content %}

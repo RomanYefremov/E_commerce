@@ -1,0 +1,84 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="row main-content">
+    {% for product in page_obj %}
+        <div class="col-lg-3">
+            <a href="{% url 'product_detail' product.id %}">
+                <img class="thumbnail" src="{{ product.imageURL }}">
+            </a>
+            <div class="box-element product" style="
+                padding-top: 45px;
+                padding-bottom: 15px;">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h6 style="display: grid;justify-content: start;"><strong>{{ product.name }}</strong></h6>
+                    </div>
+                    <div class="col-sm-6">
+                        <h4 style="display: grid;justify-content: end;"><strong>${{ product.price }}</strong></h4>
+                    </div>
+                </div>
+{#                <h6><strong>{{ product.name }}</strong></h6>#}
+{#                <h4 style="display: grid"><strong>${{ product.price }}</strong></h4>#}
+
+
+                <hr>
+
+                <button data-product="{{ product.id }}" data-action="add" class="btn btn-outline-secondary add-btn update-cart">Add to Cart</button>
+
+                <a class="btn btn-dark" href="{% url 'product_detail' product.id %}">Details</a>
+
+{#                <h4 style="display: inline-block; float: right"><strong>${{ product.price }}</strong></h4>#}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+
+
+    <!-- Pagination links -->
+{% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-container-center text-center mt-3">
+          <nav aria-label="...">
+            <ul class="pagination justify-content-center d-flex">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="btn btn-form" href="?page={{ page_obj.previous_page_number }}" tabindex="-1">Prev</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a href="#" tabindex="-1">Prev</a>
+                </li>
+              {% endif %}
+
+              {% for page in page_obj.paginator.page_range %}
+                {% if page_obj.number == page %}
+                  <li class="page-item active">
+                    <a class="page-link btn btn-dark active" href="#">{{ page }} <span class="sr-only">(current)</span></a>
+                  </li>
+                {% else %}
+                  <li class="page-item">
+                    <a class="page-link btn btn-dark" href="?page={{ page }}">{{ page }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="btn btn-form" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a href="#">Next</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+{% endif %}
+
+
+
+
+
+{% endblock content %}

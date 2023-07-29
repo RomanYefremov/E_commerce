@@ -1,0 +1,88 @@
+{% extends 'store/main.html' %}
+
+{% block content %}
+    <div class="page-content main-content page-container" id="page-content">
+        <div class="padding">
+            <div class="row container d-flex justify-content-center">
+                <div class="col-md-12">
+                    <div class="card user-card-full">
+                        <div class="row m-l-0 m-r-0">
+                            <div class="col-sm-4 bg-c-lite-green user-profile">
+                                <div class="card-block text-center text-white">
+                                    <div class="m-b-25">
+                                        <img src="https://img.icons8.com/bubbles/100/000000/user.png" class="img-radius" alt="User-Profile-Image">
+                                    </div>
+                                    <h4 class="text-white">{{ first_name }} {{ last_name }}</h4>
+                                    <i class="mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="card-block">
+                                    <h6 class="m-b-20 p-b-5 b-b-default f-w-600">Information</h6>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <p class="m-b-10 f-w-600">Email</p>
+                                            <h6 class="text-muted f-w-400">{{ user.email }}</h6>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="m-b-10 f-w-600">Phone</p>
+                                            {% if user.customer.phone %}
+                                                <h6 class="text-muted f-w-400">{{ user.customer.phone }}</h6>
+                                            {% else %}
+                                                <form method="POST" action="{% url 'save_phone' %}">
+                                                    {% csrf_token %}
+                                                    <input type="text" id="id_phone" name="phone" class="form-control" required />
+                                                    <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="m-b-10 f-w-600">City</p>
+                                            {% if user.customer.city %}
+                                                <h6 class="text-muted f-w-400">{{ user.customer.city }}</h6>
+                                            {% else %}
+                                                <form method="POST" action="{% url 'save_city' %}">
+                                                    {% csrf_token %}
+                                                    <input type="text" id="id_city" name="city" class="form-control" required />
+                                                    <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="m-b-10 f-w-600">Address</p>
+                                            {% if user.customer.address %}
+                                                <h6 class="text-muted f-w-400">{{ user.customer.address }}</h6>
+                                            {% else %}
+                                                <form method="POST" action="{% url 'save_address' %}">
+                                                    {% csrf_token %}
+                                                    <input type="text" id="id_address" name="address" class="form-control" required />
+                                                    <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+
+
+                                    </div>
+                                    <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600">Order History</h6>
+                                    <div class="row">
+                                        {% for order in orders %}
+                                            <div class="col-sm-6">
+                                                <p class="m-b-10 f-w-600">Order ID: {{ order.id }}</p>
+                                                <h6 class="text-muted f-w-400">Status: {{ order.status }}</h6>
+                                            </div>
+                                        {% empty %}
+                                            <div class="col-sm-12">
+                                                <p>No orders found.</p>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

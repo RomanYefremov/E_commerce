@@ -1,0 +1,15 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+
+<h1>Update Profile</h1>
+
+<form method="POST" action="{% url 'update_profile' %}">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">Update</button>
+</form>
+
+{% endblock content %}
