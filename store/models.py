@@ -36,14 +36,14 @@ def create_customer(sender, instance, created, **kwargs):
         Customer.objects.create(user=instance)
 
 
-class Size(models.Model):
-    size_name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.size_name
-
-
 class Product(models.Model):
+    VARIANT = (
+        ('None', 'None'),
+        ('Size', 'Size'),
+        ('Color', 'Color'),
+        ('Size-Color', 'Size-Color'),
+    )
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=True, null=False)
     name = models.CharField(max_length=200)
     price = models.FloatField()
     is_available = models.BooleanField(default=True)
@@ -52,9 +52,8 @@ class Product(models.Model):
     material = models.TextField(blank=True, null=True)
     additional_material = models.TextField(blank=True, null=True)
     digital = models.BooleanField(default=False, null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=True, null=False)
+    variant = models.CharField(max_length=10, choices=VARIANT, default=None)
     image = models.ImageField(null=True, blank=True)
-    size_variant = models.ManyToManyField(Size, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -78,13 +77,33 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"{self.product.name} Image"
 
-class SizeVariant(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=0)
+
+class Size(models.Model):
+    name = models.CharField(max_length=50)
+    code = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.product.name} - {self.size.size_name} - {self.quantity}"
+        return self.name
+
+
+class Color(models.Model):
+    name = models.CharField(max_length=10)
+    code = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Variants(models.Model):
+    name = models.CharField(max_length=100, blank=True, null=True)
+    product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, blank=True, null=True)
+    size = models.ForeignKey(Size, on_delete=models.CASCADE, blank=True, null=True)
+    quantity = models.IntegerField(default=1)
+    price = models.FloatField(default=0)
+
+    def __str__(self):
+        return self.name
 
 
 class Order(models.Model):
@@ -128,7 +147,8 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField(default=0, null=True, blank=True)
-    size = models.CharField(max_length=100)
+    variant = models.ForeignKey(Variants, on_delete=models.SET_NULL, null=True)  # Add this line
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
 
@@ -138,6 +158,8 @@ class OrderItem(models.Model):
             return 0
         total = self.product.price * self.quantity
         return total
+
+
 
 
 class ShippingAddress(models.Model):
