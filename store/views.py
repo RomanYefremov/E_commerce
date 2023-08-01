@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.contrib import messages
-from .models import Category, Product, Order, OrderItem, ShippingAddress, Customer, SizeVariant
+from .models import Category, Product, Order, OrderItem, ShippingAddress, Customer, Variants
 from django.contrib.auth.forms import UserCreationForm
 from .forms import RegistrationForm
 import json
@@ -54,8 +54,8 @@ def product_detail(request, product_id):
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
     product = get_object_or_404(Product, id=product_id)
     cartItems = order.get_cart_items
-    sizes = SizeVariant.objects.all()
-    context = {'product': product, 'cartItems': cartItems, 'sizes': sizes}
+    # sizes = SizeVariant.objects.all()
+    context = {'product': product, 'cartItems': cartItems}
     return render(request, 'store/product_detail.html', context)
 
 
@@ -92,32 +92,46 @@ def checkout(request):
     return render(request, 'store/checkout.html', context)
 
 
+
 def updateItem(request):
-    data = json.loads(request.body)
-    print('Received data:', data)
-    product_id = data['productId']
-    action = data['action']
-    print('Action:', action)
-    print('Product:', product_id)
+    try:
+        data = json.loads(request.body)
+        print('Received data:', data)
+        variantId = data['variantId']
+        action = data['action']
+        print('Action:', action)
+        print('Product Variant ID:', variantId)
 
-    customer = request.user.customer
-    product = Product.objects.get(id=product_id)
-    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
 
-    order_item, created = OrderItem.objects.get_or_create(order=order, product=product)
+        # Get the product variant associated with the selected variantId
+        variant = Variants.objects.get(id=variantId)
 
-    if action == 'add':
-        order_item.quantity += 1
-    elif action == 'remove':
-        order_item.quantity -= 1
+        # Check if the order item already exists for the selected variant
+        order_item, created = OrderItem.objects.get_or_create(order=order, product=variant.product, variant=variant)
 
-    order_item.save()
+        if action == 'add':
+            order_item.quantity += 1
+        elif action == 'remove':
+            order_item.quantity -= 1
 
-    if order_item.quantity <= 0:
-        order_item.delete()
+        order_item.save()
+
+        if order_item.quantity <= 0:
+            order_item.delete()
+
+        return JsonResponse({'message': 'Item was added'})
+    except json.JSONDecodeError as e:
+        print('Error decoding JSON:', str(e))
+        return JsonResponse('Error decoding JSON', status=400, safe=False)
+    except KeyError as e:
+        print('KeyError:', str(e))
+        return JsonResponse('Invalid data in request', status=400, safe=False)
 
 
-    return JsonResponse('Item was added', safe=False)
+
+
 
 
 def processOrder(request):

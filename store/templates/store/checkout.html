@@ -62,7 +62,12 @@
             {% for item in items %}
             <div class="cart-row">
                 <div style="flex:2"><img class="row-image" src="{{ item.product.imageURL }}"></div>
-                <div style="flex:2"><p>{{ item.product.name }}</p></div>
+                <div style="flex:2">
+                    <p>{{ item.product.name }}</p>
+                    <!-- Display the selected variant size and color -->
+                    <p>Size: {{ item.variant.size.name }}</p>
+                    <p>Color: {{ item.variant.color.name }}</p>
+                </div>
                 <div style="flex:1"><p>${{ item.product.price }}</p></div>
                 <div style="flex:1"><p>{{ item.quantity }}</p></div>
             </div>
@@ -71,6 +76,7 @@
             <h5>Total:   ${{ order.get_cart_total|floatformat:2 }}</h5>
         </div>
     </div>
+
 </div>
 
 <script type="text/javascript">

@@ -1,14 +1,7 @@
-# admin.py
-
 from django.contrib import admin
 from django import forms
 from django.utils.html import format_html
-from .models import Product, Category, Customer, Order, OrderItem, ShippingAddress, SizeVariant, Size, ProductImage
-
-
-class SizeVariantInline(admin.TabularInline):
-    model = SizeVariant
-    extra = 1
+from .models import Product, Category, Customer, Order, OrderItem, ShippingAddress, Variants, Size, ProductImage, Color
 
 
 class ProductImageInline(admin.TabularInline):
@@ -16,17 +9,22 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
 
 
+class VariantsInline(admin.TabularInline):  # You can use admin.StackedInline if you prefer a stacked layout
+    model = Variants
+    extra = 1
+    show_change_link = True
+
+
 class ProductAdminForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = '__all__'
 
-    # Add the image field to the form
     image = forms.ImageField(required=False)
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.image = self.cleaned_data.get('image')  # Set the image field from the form data
+        instance.image = self.cleaned_data.get('image')
         if commit:
             instance.save()
         return instance
@@ -43,11 +41,19 @@ class ProductAdmin(admin.ModelAdmin):
             return None
 
     display_image.short_description = 'Image'
-    inlines = [SizeVariantInline, ProductImageInline]  # Include the ProductImageInline here
+    inlines = [ProductImageInline, VariantsInline]  # Include the VariantsInline here
+
+
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'code']
 
 
 class SizeAdmin(admin.ModelAdmin):
-    list_display = ['size_name']
+    list_display = ['name', 'code']
+
+
+class VariantsAdmin(admin.ModelAdmin):
+    list_display = ['name', 'product', 'color', 'size', 'price', 'quantity']
 
 
 admin.site.register(Category)
@@ -56,5 +62,6 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(ShippingAddress)
-admin.site.register(SizeVariant)
+admin.site.register(Color, ColorAdmin)
 admin.site.register(Size, SizeAdmin)
+admin.site.register(Variants, VariantsAdmin)
