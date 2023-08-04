@@ -44,8 +44,6 @@ def store(request):
     return render(request, 'store/store.html', context)
 
 
-
-@login_required
 def product_detail(request, product_id):
     customer = None  # Initialize customer as None by default
     if request.user.is_authenticated:
@@ -152,10 +150,10 @@ def processOrder(request):
             ShippingAddress.objects.create(
                 customer=customer,
                 order=order,
-                address=data['shipping']['address'],
                 city=data['shipping']['city'],
-                state=data['shipping']['state'],
-                zipcode=data['shipping']['zipcode'],
+                address=data['shipping']['address'],
+                phone_number=data['shipping']['phone_number'],
+                email=data['shipping']['email'],
             )
     else:
         print('User is not logged in')

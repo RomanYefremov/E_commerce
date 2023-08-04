@@ -65,16 +65,18 @@
                                     </div>
                                     <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600">Order History</h6>
                                     <div class="row">
-                                        {% for order in orders %}
+                                        {% for cart_item in cart_items %}
                                             <div class="col-sm-6">
-                                                <p class="m-b-10 f-w-600">Order ID: {{ order.id }}</p>
-                                                <h6 class="text-muted f-w-400">Status: {{ order.status }}</h6>
+                                                <p class="m-b-10 f-w-600">Order ID: {{ cart_item.order.id }}</p>
+                                                <h6 class="text-muted f-w-400">Status: {{ cart_item.order.status }}</h6>
+                                                <!-- Add any other order details you want to display -->
                                             </div>
                                         {% empty %}
                                             <div class="col-sm-12">
                                                 <p>No orders found.</p>
                                             </div>
                                         {% endfor %}
+
                                     </div>
                                 </div>
                             </div>

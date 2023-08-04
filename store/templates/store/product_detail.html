@@ -27,29 +27,23 @@
             <p>{{ product.description }}</p>
                 <form method="POST" action="{% url 'update_item' %}" class="product-form">
                     {% csrf_token %}
-                    <div class="form-group size-selection">
-                        <label for="size">Select Size:</label>
-                        <select class="form-control" id="size" name="product_id">
-                            <!-- Product detail page template -->
-                            {% for variant in product.variants.all %}
-                            <option value="{{ variant.id }}">
-                                {{ variant.size.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="product-variants">
-                        {% for variant in product.variants.all %}
-                        <button
-                            data-product="{{ product.id }}"
-                            data-action="add"
-                            data-variant="{{ variant.id }}"
-                            class="btn btn-outline-secondary-detail btn-lg add-btn update-cart"
-                        >
-                            Add to Cart - {{ variant.size.name }}
+                        <div class="form-group size-selection">
+                            <label for="size">Select Size:</label>
+                            <select class="form-control" id="size" name="product_id">
+                                <!-- Product detail page template -->
+                                {% for variant in product.variants.all %}
+                                    <option value="{{ variant.id }}">
+                                        {{ variant.size.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button id="add-to-cart-btn" data-action="add" class="btn btn-outline-secondary-detail btn-lg add-to-cart-btn">
+                            Add to Cart
                         </button>
-                        {% endfor %}
-                    </div>
+
+
                 </form>
         </div>
         <!-- Rest of the product detail page content -->

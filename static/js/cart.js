@@ -1,4 +1,22 @@
 var updateBtns = document.getElementsByClassName('update-cart');
+document.getElementById('add-to-cart-btn').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    var selectElement = document.getElementById('size');
+    var selectedVariantId = selectElement.value;
+    var action = 'add';
+    var productId = '{{ product.id }}'; // Use Django template tag to get the product ID
+    console.log('Selected Variant ID:', selectedVariantId);
+    console.log('Action:', action);
+    console.log('Product ID:', productId);
+    console.log('USER:', user);
+
+    if (user === 'AnonymousUser') {
+        console.log('User is not authenticated');
+    } else {
+        updateUserOrder(productId, action, selectedVariantId);
+    }
+});
 
 for (i = 0; i < updateBtns.length; i++) {
     updateBtns[i].addEventListener('click', function(event) {
