@@ -148,6 +148,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, default=None)
     quantity = models.IntegerField(default=0, null=True, blank=True)
     variant = models.ForeignKey(Variants, on_delete=models.SET_NULL, null=True)  # Add this line
+    is_paid_and_ready = models.BooleanField(default=False, verbose_name="Ready for Shipment")
     date_added = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
 
@@ -211,3 +212,17 @@ class RegistrationForm(UserCreationForm):
             user.save()
             Customer.objects.get_or_create(user=user, name=user.username, email=user.email)
         return user
+
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField()
+    rating = models.PositiveIntegerField(default=5, choices=((1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"

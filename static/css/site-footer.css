@@ -1,15 +1,15 @@
 .site-footer
 {
-  background-color:#26272b;
+  background-color: #1d1a39;
   padding:45px 0 20px;
   font-size:15px;
   line-height:24px;
-  color:#737373;
+  color: #f5d7db;
   margin-top: 70px;
 }
 .site-footer hr
 {
-  border-top-color:#bbb;
+  border-top-color: #faefea;
   opacity:0.5
 }
 .site-footer hr.small
@@ -67,7 +67,7 @@
   margin-left:6px;
   margin-right:0;
   border-radius:100%;
-  background-color:#33353d
+  /*background-color:#33353d*/
 }
 @media (max-width:991px)
 {

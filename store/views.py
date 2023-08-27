@@ -5,9 +5,9 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.contrib import messages
-from .models import Category, Product, Order, OrderItem, ShippingAddress, Customer, Variants
+from .models import Category, Product, Order, OrderItem, ShippingAddress, Customer, Variants, Review
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegistrationForm
+from .forms import RegistrationForm, ReviewForm
 import json
 import datetime
 
@@ -51,9 +51,35 @@ def product_detail(request, product_id):
 
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
     product = get_object_or_404(Product, id=product_id)
+    reviews = Review.objects.filter(product=product)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.product = product
+            review.save()
+            return redirect('product_detail', product_id=product.id)
+    else:
+        form = ReviewForm()
+
+    user_review = Review.objects.filter(product=product, user=request.user).first()
+    other_reviews = Review.objects.filter(product=product).exclude(user=request.user).order_by('-created_at')
+    user_has_review = user_review is not None
+    # If the user has left a review, move it to the beginning of the list
+    if user_review:
+        reviews = [user_review] + list(other_reviews)
+    else:
+        reviews = list(other_reviews)
+
     cartItems = order.get_cart_items
     # sizes = SizeVariant.objects.all()
-    context = {'product': product, 'cartItems': cartItems}
+    context = {'product': product,
+               'cartItems': cartItems,
+               'reviews': reviews,
+               'form': form,
+               'user_review': user_review,
+               }
     return render(request, 'store/product_detail.html', context)
 
 
@@ -146,6 +172,11 @@ def processOrder(request):
             order.complete = True
         order.save()
 
+        order_items = order.orderitem_set.all()
+        for item in order_items:
+            item.is_paid_and_ready = True
+            item.save()
+
         if order.shipping:
             ShippingAddress.objects.create(
                 customer=customer,
@@ -193,20 +224,28 @@ def register(request):
 
 @login_required
 def personal_area(request):
-    customer = request.user.customer
-    order, created = Order.objects.get_or_create(customer=customer, complete=False)
-    cartItems = order.get_cart_items
     user = request.user
     orders = Order.objects.filter(customer=user.customer)
-    first_name = user.first_name
-    last_name = user.last_name
+
+    order_items_with_status = []
+    for order in orders:
+        order_items = order.orderitem_set.all()
+        for item in order_items:
+            order_item_status = {
+                'order_item': item,
+                'is_paid_and_ready': item.is_paid_and_ready,  # Assuming you have this field
+                'is_completed': item.is_completed,  # Assuming you have this field
+                'variant': item.variant,  # Assuming you have this field
+            }
+            order_items_with_status.append(order_item_status)
+
     context = {
         'user': user,
-        'orders': orders,
-        'first_name': first_name,
-        'last_name': last_name,
-        'cartItems': cartItems,
+        'order_items_with_status': order_items_with_status,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
     }
+
     return render(request, 'store/personal_area.html', context)
 
 

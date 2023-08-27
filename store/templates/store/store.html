@@ -4,10 +4,12 @@
 
     <div class="row main-content">
     {% for product in page_obj %}
-        <div class="col-lg-3">
-            <a href="{% url 'product_detail' product.id %}">
-                <img class="thumbnail" src="{{ product.imageURL }}">
-            </a>
+        <div class="col-lg-3 hover01">
+            <figure>
+                <a href="{% url 'product_detail' product.id %}">
+                    <img class="thumbnail" src="{{ product.imageURL }}">
+                </a>
+
             <div class="box-element product" style="
                 padding-top: 45px;
                 padding-bottom: 15px;">
@@ -24,11 +26,12 @@
                         <h3 style="display: grid;justify-content: start;"><strong>${{ product.price }}</strong></h3>
                     </div>
                     <div class="col-sm-6">
-                        <a class="btn btn-dark" href="{% url 'product_detail' product.id %}">Details</a>
+                        <a class="btn btn-outline-light" href="{% url 'product_detail' product.id %}">Details</a>
                         </div>
                 </div>
 {#                <h4 style="display: inline-block; float: right"><strong>${{ product.price }}</strong></h4>#}
             </div>
+        </figure>
         </div>
     {% endfor %}
     </div>

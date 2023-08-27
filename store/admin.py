@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 from django.utils.html import format_html
-from .models import Product, Category, Customer, Order, OrderItem, ShippingAddress, Variants, Size, ProductImage, Color
+from .models import Product, Category, Customer, Order, OrderItem, ShippingAddress, Variants, Size, ProductImage, Color, Review
 
 
 class ProductImageInline(admin.TabularInline):
@@ -31,7 +31,7 @@ class ProductAdminForm(forms.ModelForm):
 
 
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'customer', 'product', 'quantity', 'variant', 'is_completed')
+    list_display = ('order', 'customer', 'product', 'quantity', 'variant', 'is_paid_and_ready', 'is_completed')
     list_filter = ('order',)
 
     def customer(self, obj):
@@ -47,12 +47,12 @@ class ShippingAddressAdmin(admin.ModelAdmin):
     list_filter = ('customer',)
 
     def get_orders(self, obj):
-        orders = obj.customer.order_set.all()
-        return ", ".join(str(order) for order in orders)
+        if obj.customer is not None:
+            orders = obj.customer.order_set.all()
+            return ", ".join(str(order) for order in orders)
+        return None
 
-    get_orders.short_description = 'Orders'  # Set a custom header for the column
-
-
+    get_orders.short_description = 'Orders'
 
 
 class ProductAdmin(admin.ModelAdmin):
@@ -81,6 +81,10 @@ class VariantsAdmin(admin.ModelAdmin):
     list_display = ['name', 'product', 'color', 'size', 'price', 'quantity']
 
 
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'rating', 'created_at')
+
+
 admin.site.register(Category)
 admin.site.register(Customer)
 admin.site.register(Product, ProductAdmin)
@@ -90,3 +94,4 @@ admin.site.register(ShippingAddress, ShippingAddressAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(Size, SizeAdmin)
 admin.site.register(Variants, VariantsAdmin)
+admin.site.register(Review, ReviewAdmin)

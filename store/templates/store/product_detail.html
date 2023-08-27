@@ -3,7 +3,14 @@
 {% block content %}
 
 <!-- Your existing product detail page content -->
-
+{% if form.errors %}
+    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+      <strong>Something Wrong!</strong> Please check if the information is correct.
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+{% endif %}
 <div class="row main-content" style="align-items: inherit;">
     <!-- Left column -->
     <div class="col-sm-6 col-xs-12 main-content">
@@ -48,12 +55,120 @@
         </div>
         <!-- Rest of the product detail page content -->
     </div>
+    </div>
+    <br>
+    <div class="padding">
+        <div class="padding">
+            {% if user.is_authenticated %}
+                {% if not user_review %}
+                    <button class="btn btn-outline-light" id="show-review-form">Leave a Review</button>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light">Login to Leave a Review</a>
+            {% endif %}
+            <form method="post" id="review-form" style="display: none;">
+                {% csrf_token %}
+                <div class="star-rating" id="star-rating">
+                    <span class="star selectable-star" data-value="1">&#9733;</span>
+                    <span class="star selectable-star" data-value="2">&#9733;</span>
+                    <span class="star selectable-star" data-value="3">&#9733;</span>
+                    <span class="star selectable-star" data-value="4">&#9733;</span>
+                    <span class="star selectable-star" data-value="5">&#9733;</span>
+                </div>
+                {{ form.comment.label_tag }}
+                {{ form.comment }}
+                {{ form.comment.errors }}
+                <input type="hidden" name="rating" id="rating-field">
+                <button type="submit" class="btn btn-outline-light">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    {% for review in reviews %}
+    <div class="padding">
+        <h5>By: {{ review.user.first_name }}</h5>
+        <div class="star-display">
+            {% for i in '12345'|make_list %}
+                {% with rating_value=i|add:'0' %}
+                    <span class="star {% if rating_value <= review.rating %}selected{% endif %}" data-value="{{ rating_value }}">&#9733;</span>
+                {% endwith %}
+            {% endfor %}
+        </div>
+        <p>{{ review.comment }}</p>
+        <hr>
+    </div>
+    {% empty %}
+        <p>No reviews yet.</p>
+    {% endfor %}
+
+
+
 </div>
+    <style>
+    /* Add this CSS to your stylesheet or in a <style> tag in your template */
+
+    .star-rating {
+        font-size: 24px;  /* Adjust the font size as needed */
+    }
+
+    .star {
+        cursor: pointer;
+        color: #ccc;  /* Default star color */
+        transition: color 0.2s ease;
+    }
+
+    .star.selected,
+    .star:hover {
+        color: #ffcc00;
+    }
+    .star-display {
+        pointer-events: none;
+    }
+
+    </style>
 <script>
     // JavaScript function to change the main image
     function changeMainImage(imageUrl) {
         var mainImage = document.getElementById('mainImage');
         mainImage.src = imageUrl;
     }
+    // Add this script at the end of your HTML body or use a separate JS file
+    document.addEventListener('DOMContentLoaded', () => {
+        const showReviewFormButton = document.getElementById('show-review-form');
+        const reviewForm = document.getElementById('review-form');
+
+        showReviewFormButton.addEventListener('click', () => {
+            reviewForm.style.display = 'block';
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const reviewForm = document.getElementById('review-form');
+        const stars = reviewForm.querySelectorAll('.star.selectable-star');
+        const ratingField = reviewForm.querySelector('#rating-field');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = star.dataset.value;
+                ratingField.value = rating;
+
+                // Reset star styles for the selectable stars within the review form
+                stars.forEach(s => s.classList.remove('selected'));
+
+                // Add selected class to clicked star and previous stars
+                for (let i = 1; i <= rating; i++) {
+                    reviewForm.querySelector(`[data-value="${i}"]`).classList.add('selected');
+                }
+            });
+        });
+    });
+
+
+
+
+
 </script>
 {% endblock content %}
