@@ -42,7 +42,7 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="{% url 'store' %}">Ecommerce</a>
+    <a class="navbar-brand" href="{% url 'store' %}"><img src="/static/images/ludmila.png" alt="logo" class="logo-icon"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -50,7 +50,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <div class="dropdown">
-              <button class="btn btn-dark btn-secondary dropdown-toggle dropdown-button" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <button class="btn btn-outline-light btn-secondary dropdown-toggle dropdown-button" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Category
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -64,11 +64,23 @@
 
         <div class="form-inline my-0 my-lg-0">
             {% if user.is_authenticated %}
-                <a href="{% url 'personal_area' %}" class="btn btn-dark">Personal Area</a>
-                <a href="{% url 'logout' %}" class="btn btn-dark">Logout</a>
+                <a href="{% url 'personal_area' %}" class="btn btn-outline-light user-button">
+                    Profile
+                    <img src="/static/images/user01.png" alt="User" class="user-icon">
+                </a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light user-button">
+                    Logout
+                    <img src="/static/images/exit.png" alt="exit" class="login-icon">
+                </a>
             {% else %}
-                <a href="{% url 'register' %}" class="btn btn-dark">Register</a>
-                <a href="{% url 'login' %}" class="btn btn-dark">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-light user-button">
+                    Sign up
+                <img src="/static/images/register.png" alt="register" class="register-icon">
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light user-button">
+                    Log in
+                <img src="/static/images/exit.png" alt="exit" class="login-icon">
+                </a>
             {% endif %}
 
             <a href="{% url 'cart' %}">
@@ -124,7 +136,6 @@
         </div>
     </div>
 </footer>
-
 <script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
 {#<script type="text/javascript" src="{% static 'js/update_field.js' %}"></script>#}
 <!-- JavaScript Bundle with Popper -->

@@ -26,54 +26,89 @@
                                         </div>
                                         <div class="col-sm-6">
                                             <p class="m-b-10 f-w-600">Phone</p>
-                                            {% if user.customer.phone %}
-                                                <h6 class="text-muted f-w-400">{{ user.customer.phone }}</h6>
-                                            {% else %}
+                                            <div class="info-with-edit">
+                                                <div id="existing-phone">
+                                                    {% if user.customer.phone %}
+                                                        <h6 class="text-muted f-w-400">{{ user.customer.phone }}</h6>
+                                                        <button id="edit-phone-button" class="btn btn-outline-light user-button">
+                                                            <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                    {% else %}
+                                                        <form method="POST" action="{% url 'save_phone' %}">
+                                                            {% csrf_token %}
+                                                            <input type="text" id="id_phone" name="phone" class="form-control" required />
+                                                            <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <div id="edit-phone" style="display: none;">
                                                 <form method="POST" action="{% url 'save_phone' %}">
                                                     {% csrf_token %}
                                                     <input type="text" id="id_phone" name="phone" class="form-control" required />
-                                                    <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                    <button type="submit" class="btn btn-outline-light mt-2">Save</button>
+                                                    <button type="button" id="cancel-edit-button" class="btn btn-outline-light mt-2">Cancel</button>
                                                 </form>
-                                            {% endif %}
+                                            </div>
+
                                         </div>
                                         <div class="col-sm-6">
                                             <p class="m-b-10 f-w-600">City</p>
-                                            {% if user.customer.city %}
-                                                <h6 class="text-muted f-w-400">{{ user.customer.city }}</h6>
-                                            {% else %}
+                                            <div class="info-with-edit">
+                                                <div id="existing-city">
+                                                    {% if user.customer.city %}
+                                                        <h6 class="text-muted f-w-400">{{ user.customer.city }}</h6>
+                                                        <button id="edit-city-button" class="btn btn-outline-light user-button">
+                                                            <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                    {% else %}
+                                                        <form method="POST" action="{% url 'save_city' %}">
+                                                            {% csrf_token %}
+                                                            <input type="text" id="id_city" name="city" class="form-control" required />
+                                                            <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div id="edit-city" style="display: none;">
                                                 <form method="POST" action="{% url 'save_city' %}">
                                                     {% csrf_token %}
                                                     <input type="text" id="id_city" name="city" class="form-control" required />
-                                                    <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                    <button type="submit" class="btn btn-outline-light mt-2">Save</button>
+                                                    <button type="button" id="cancel-edit-city" class="btn btn-outline-light mt-2">Cancel</button>
                                                 </form>
-                                            {% endif %}
+                                            </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <p class="m-b-10 f-w-600">Address</p>
-                                            {% if user.customer.address %}
-                                                <h6 class="text-muted f-w-400">{{ user.customer.address }}</h6>
-                                            {% else %}
+                                            <div class="info-with-edit">
+                                                <div id="existing-address">
+                                                {% if user.customer.address %}
+                                                    <h6 class="text-muted f-w-400">{{ user.customer.address }}</h6>
+                                                    <button id="edit-address-button" class="btn btn-outline-light user-button">
+                                                        <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                {% else %}
+                                                    <form method="POST" action="{% url 'save_address' %}">
+                                                        {% csrf_token %}
+                                                        <input type="text" id="id_address" name="address" class="form-control" required />
+                                                        <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                            </div>
+                                            <div id="edit-address" style="display: none;">
                                                 <form method="POST" action="{% url 'save_address' %}">
                                                     {% csrf_token %}
                                                     <input type="text" id="id_address" name="address" class="form-control" required />
-                                                    <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                                    <button type="submit" class="btn btn-outline-light mt-2">Save</button>
+                                                    <button type="button" id="cancel-edit-address" class="btn btn-outline-light mt-2">Cancel</button>
                                                 </form>
-                                            {% endif %}
+                                            </div>
                                         </div>
-
-
                                     </div>
                                     <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600">Order History</h6>
                                     <div class="row">
-                                        {% for order in orders %}
-                                            <div class="col-sm-6">
-                                                <p class="m-b-10 f-w-600">Order ID: {{ order.id }}</p>
-                                                <h6 class="text-muted f-w-400">Status: {{ order.status }}</h6>
-                                            </div>
-                                        {% empty %}
-                                            <div class="col-sm-12">
-                                                <p>No orders found.</p>
-                                            </div>
+                                        {% for order_item_status in order_items_with_status %}
+                                            <p>Order ID: {{ order_item_status.order_item.order.id }} Variant: {{ order_item_status.variant }} Paid: {% if order_item_status.is_paid_and_ready %}<img src="/static/images/icon-yes.svg" alt="True">{% else %}<img src="/static/images/icon-no.svg" alt="False">{% endif %} Sent:{% if order_item_status.is_completed %}<img src="/static/images/icon-yes.svg">{% else %}<img src="/static/images/icon-no.svg" alt="False">{% endif %}</p>
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -84,5 +119,58 @@
             </div>
         </div>
     </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const existingPhoneDiv = document.getElementById("existing-phone");
+        const editPhoneDiv = document.getElementById("edit-phone");
+
+        const editPhoneButton = document.getElementById("edit-phone-button");
+        const cancelEditButton = document.getElementById("cancel-edit-button");
+
+        const existingCityDiv = document.getElementById("existing-city");
+        const editCityDiv = document.getElementById("edit-city");
+
+        const existingAddressDiv = document.getElementById("existing-address");
+        const editAddressDiv = document.getElementById("edit-address");
+
+        const editCityButton = document.getElementById("edit-city-button");
+        const cancelEditCityButton = document.getElementById("cancel-edit-city");
+
+        const editAddressButton = document.getElementById("edit-address-button");
+        const cancelEditAddressButton = document.getElementById("cancel-edit-address");
+
+
+
+        editPhoneButton.addEventListener("click", function () {
+            existingPhoneDiv.style.display = "none";
+            editPhoneDiv.style.display = "block";
+        });
+
+        cancelEditButton.addEventListener("click", function () {
+            existingPhoneDiv.style.display = "block";
+            editPhoneDiv.style.display = "none";
+        });
+
+        editCityButton.addEventListener("click", function () {
+            existingCityDiv.style.display = "none";
+            editCityDiv.style.display = "block";
+        });
+
+        cancelEditCityButton.addEventListener("click", function () {
+            existingCityDiv.style.display = "block";
+            editCityDiv.style.display = "none";
+        });
+
+        editAddressButton.addEventListener("click", function () {
+            existingAddressDiv.style.display = "none";
+            editAddressDiv.style.display = "block";
+        });
+
+        cancelEditAddressButton.addEventListener("click", function () {
+            existingAddressDiv.style.display = "block";
+            editAddressDiv.style.display = "none";
+        });
+    });
+</script>
 
 {% endblock content %}

@@ -145,10 +145,10 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, default=None)
     quantity = models.IntegerField(default=0, null=True, blank=True)
     variant = models.ForeignKey(Variants, on_delete=models.SET_NULL, null=True)  # Add this line
-    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True)
+    is_paid_and_ready = models.BooleanField(default=False, verbose_name="Ready for Shipment")
     date_added = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
 
@@ -160,19 +160,18 @@ class OrderItem(models.Model):
         return total
 
 
-
-
 class ShippingAddress(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
-    address = models.CharField(max_length=200, null=False)
     city = models.CharField(max_length=200, null=False)
-    phone_number = models.CharField(max_length=200, null=False)  # Added phone_number field
-    email = models.EmailField(max_length=200, null=False)  # Added email field
+    address = models.CharField(max_length=200, null=False)
+    phone_number = models.CharField(max_length=200, null=False)  # Use appropriate max_length for phone numbers
+    email = models.EmailField(max_length=200, null=False)
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.address
+
 
 
 class UserProfile(models.Model):
@@ -213,3 +212,17 @@ class RegistrationForm(UserCreationForm):
             user.save()
             Customer.objects.get_or_create(user=user, name=user.username, email=user.email)
         return user
+
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField()
+    rating = models.PositiveIntegerField(default=5, choices=((1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"
