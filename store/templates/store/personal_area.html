@@ -26,12 +26,13 @@
                                         </div>
                                         <div class="col-sm-6">
                                             <p class="m-b-10 f-w-600">Phone</p>
-                                            <div class="info-with-edit">
                                                 <div id="existing-phone">
                                                     {% if user.customer.phone %}
                                                         <h6 class="text-muted f-w-400">{{ user.customer.phone }}</h6>
-                                                        <button id="edit-phone-button" class="btn btn-outline-light user-button">
-                                                            <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                        <div class="info-with-edit">
+                                                            <button id="edit-phone-button" class="btn btn-outline-light user-button">
+                                                                <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                        </div>
                                                     {% else %}
                                                         <form method="POST" action="{% url 'save_phone' %}">
                                                             {% csrf_token %}
@@ -40,7 +41,6 @@
                                                         </form>
                                                     {% endif %}
                                                 </div>
-                                            </div>
 
                                             <div id="edit-phone" style="display: none;">
                                                 <form method="POST" action="{% url 'save_phone' %}">
@@ -54,12 +54,13 @@
                                         </div>
                                         <div class="col-sm-6">
                                             <p class="m-b-10 f-w-600">City</p>
-                                            <div class="info-with-edit">
                                                 <div id="existing-city">
                                                     {% if user.customer.city %}
                                                         <h6 class="text-muted f-w-400">{{ user.customer.city }}</h6>
-                                                        <button id="edit-city-button" class="btn btn-outline-light user-button">
-                                                            <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                        <div class="info-with-edit">
+                                                            <button id="edit-city-button" class="btn btn-outline-light user-button">
+                                                                <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                        </div>
                                                     {% else %}
                                                         <form method="POST" action="{% url 'save_city' %}">
                                                             {% csrf_token %}
@@ -68,7 +69,6 @@
                                                         </form>
                                                     {% endif %}
                                                 </div>
-                                            </div>
                                             <div id="edit-city" style="display: none;">
                                                 <form method="POST" action="{% url 'save_city' %}">
                                                     {% csrf_token %}
@@ -80,12 +80,13 @@
                                         </div>
                                         <div class="col-sm-6">
                                             <p class="m-b-10 f-w-600">Address</p>
-                                            <div class="info-with-edit">
                                                 <div id="existing-address">
                                                 {% if user.customer.address %}
                                                     <h6 class="text-muted f-w-400">{{ user.customer.address }}</h6>
-                                                    <button id="edit-address-button" class="btn btn-outline-light user-button">
-                                                        <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                    <div class="info-with-edit">
+                                                        <button id="edit-address-button" class="btn btn-outline-light user-button">
+                                                            <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                                                    </div>
                                                 {% else %}
                                                     <form method="POST" action="{% url 'save_address' %}">
                                                         {% csrf_token %}
@@ -93,7 +94,6 @@
                                                         <button type="submit" class="btn btn-primary mt-2">Save</button>
                                                     </form>
                                                 {% endif %}
-                                            </div>
                                             </div>
                                             <div id="edit-address" style="display: none;">
                                                 <form method="POST" action="{% url 'save_address' %}">

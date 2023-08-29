@@ -15,4 +15,7 @@ urlpatterns = [
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('process_order/', views.processOrder, name='process_order'),
+    path('edit_review/<int:review_id>/', views.edit_review, name='edit_review'),
+    path('delete_review/<int:review_id>/', views.delete_review, name='delete_review'),
+
 ]
