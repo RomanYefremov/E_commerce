@@ -2,15 +2,7 @@
 {% load static %}
 {% block content %}
 
-<!-- Your existing product detail page content -->
-{% if form.errors %}
-    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
-      <strong>Something Wrong!</strong> Please check if the information is correct.
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-{% endif %}
+
 <div class="row main-content" style="align-items: inherit;">
     <!-- Left column -->
     <div class="col-sm-6 col-xs-12 main-content">
@@ -26,8 +18,15 @@
     <!-- Right column -->
     <div class="col-sm-6 col-xs-12">
         <div class="text">
-            <h2 style="margin-bottom: 1.5rem;">{{ product.name }}</h2>
-            <h5><strong>Price:</strong> ${{ product.price }}</h5>
+            <h2>{{ product.name }}</h2>
+                <span class="star-display">
+                    {% for i in '12345'|make_list %}
+                        {% with rating_value=i|add:'0' %}
+                            <span class="star {% if rating_value <= average_rating %}selected{% endif %}" data-value="{{ rating_value }}">&#9733;</span>
+                        {% endwith %}
+                    {% endfor %}
+                </span>
+            <h4 style="margin-top: 1.5rem;"><strong>Price:</strong> ${{ product.price }}</h4>
 
             <p style="margin-top: 1.5rem;"><strong>Material:</strong> {{ product.material }}</p>
             <p style="margin-bottom: 1.5rem;"><strong>Sole:</strong> {{ product.additional_material }}</p>
@@ -55,38 +54,34 @@
         </div>
         <!-- Rest of the product detail page content -->
     </div>
-    </div>
-    <br>
+</div>
     <div class="padding">
-        <div class="padding">
-            {% if user.is_authenticated %}
-                {% if not user_review %}
-                    <button class="btn btn-outline-light" id="show-review-form">Leave a Review</button>
-                {% endif %}
-            {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline-light">Login to Leave a Review</a>
+    <h2>Review ({{ review_count }})</h2>
+        {% if user.is_authenticated %}
+            {% if not user_review %}
+                <button class="btn btn-outline-light" id="show-review-form">Leave a Review</button>
             {% endif %}
-            <form method="post" id="review-form" style="display: none;">
-                {% csrf_token %}
-                <div class="star-rating" id="star-rating">
-                    <span class="star selectable-star" data-value="1">&#9733;</span>
-                    <span class="star selectable-star" data-value="2">&#9733;</span>
-                    <span class="star selectable-star" data-value="3">&#9733;</span>
-                    <span class="star selectable-star" data-value="4">&#9733;</span>
-                    <span class="star selectable-star" data-value="5">&#9733;</span>
-                </div>
-                {{ form.comment.label_tag }}
-                {{ form.comment }}
-                {{ form.comment.errors }}
-                <input type="hidden" name="rating" id="rating-field">
-                <button type="submit" class="btn btn-outline-light">Submit Review</button>
-            </form>
-        </div>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-outline-light">Login to Leave a Review</a>
+        {% endif %}
+        <form method="post" id="review-form" style="display: none;">
+            {% csrf_token %}
+            <div class="star-rating" id="star-rating">
+                <span class="star selectable-star" data-value="1">&#9733;</span>
+                <span class="star selectable-star" data-value="2">&#9733;</span>
+                <span class="star selectable-star" data-value="3">&#9733;</span>
+                <span class="star selectable-star" data-value="4">&#9733;</span>
+                <span class="star selectable-star" data-value="5">&#9733;</span>
+            </div>
+            {{ form.comment.label_tag }}
+            {{ form.comment }}
+            {{ form.comment.errors }}
+            <input type="hidden" name="rating" id="rating-field">
+            <button type="submit" class="btn btn-outline-light">Submit Review</button>
+            <button type="button" class="btn btn-outline-light cancel-review-button">Cancel</button>
+        </form>
     </div>
-
-
-
-
+<div class="reviews-container">
     {% for review in reviews %}
     <div class="padding">
         <h5>By: {{ review.user.first_name }}</h5>
@@ -97,21 +92,58 @@
                 {% endwith %}
             {% endfor %}
         </div>
-        <p>{{ review.comment }}</p>
+        <p class="review-content">{{ review.comment }}</p>
+        {% if user.is_authenticated and user == review.user %}
+            <div class="info-with-edit">
+                <button class="btn btn-outline-light edit-review-button">
+                    <img src="/static/images/edit.png" alt="User" class="edit-icon"></button>
+                <button class="btn btn-outline-light delete-review-button" data-review-id="{{ review.id }}">
+                    <img src="/static/images/close.png" alt="close" class="edit-icon"></button>
+            </div>
+        {% endif %}
+        <div class="edit-review-form" style="display: none;">
+            <form method="post" action="{% url 'edit_review' review.id %}">
+                {% csrf_token %}
+                {{ form.comment.label_tag }}
+                {{ form.comment }}
+                <div class="star-rating" id="star-rating">
+                    <span class="star selectable-star" data-value="1">&#9733;</span>
+                    <span class="star selectable-star" data-value="2">&#9733;</span>
+                    <span class="star selectable-star" data-value="3">&#9733;</span>
+                    <span class="star selectable-star" data-value="4">&#9733;</span>
+                    <span class="star selectable-star" data-value="5">&#9733;</span>
+                </div>
+                <input type="hidden" name="rating" id="rating-field" value="{{ review.rating }}">
+                <button type="submit" class="btn btn-outline-light">Save</button>
+                <button type="button" class="btn btn-outline-light cancel-edit-button">Cancel</button>
+            </form>
+        </div>
         <hr>
     </div>
-    {% empty %}
-        <p>No reviews yet.</p>
     {% endfor %}
-
-
-
 </div>
+{#<div class="blur-overlay"></div>#}
+<button class="btn show-more-button btn-outline-light">Show More</button>
     <style>
-    /* Add this CSS to your stylesheet or in a <style> tag in your template */
+    .reviews-container {
+        position: relative; /* Make it a stacking context for absolute positioning */
+        max-height: 200px; /* Set a fixed height or a reasonable value */
+        overflow: hidden;
+        transition: max-height 0.3s ease-in-out;
+    }
+
+    .show-more-button {
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+    }
+    .reviews-container.expanded {
+    max-height: none;
+    }
+
 
     .star-rating {
-        font-size: 24px;  /* Adjust the font size as needed */
+        font-size: 34px;  /* Adjust the font size as needed */
     }
 
     .star {
@@ -126,6 +158,7 @@
     }
     .star-display {
         pointer-events: none;
+        font-size: 24px;
     }
 
     </style>
@@ -135,13 +168,28 @@
         var mainImage = document.getElementById('mainImage');
         mainImage.src = imageUrl;
     }
+    document.addEventListener('DOMContentLoaded', () => {
+        const showMoreButton = document.querySelector('.show-more-button');
+        const reviewsContainer = document.querySelector('.reviews-container');
+
+        showMoreButton.addEventListener('click', () => {
+            reviewsContainer.classList.toggle('expanded');
+            showMoreButton.textContent = reviewsContainer.classList.contains('expanded') ? 'Show Less' : 'Show More';
+        });
+    });
+
     // Add this script at the end of your HTML body or use a separate JS file
     document.addEventListener('DOMContentLoaded', () => {
         const showReviewFormButton = document.getElementById('show-review-form');
         const reviewForm = document.getElementById('review-form');
+        const cancelReviewButton = reviewForm.querySelector('.cancel-review-button');
 
         showReviewFormButton.addEventListener('click', () => {
             reviewForm.style.display = 'block';
+        });
+
+        cancelReviewButton.addEventListener('click', () => {
+            reviewForm.style.display = 'none';
         });
     });
 
@@ -166,9 +214,81 @@
         });
     });
 
+    document.addEventListener('DOMContentLoaded', () => {
+        const editReviewButtons = document.querySelectorAll('.edit-review-button');
+        const deleteReviewButtons = document.querySelectorAll('.delete-review-button');
+        const cancelEditButtons = document.querySelectorAll('.cancel-edit-button');
+        const editReviewForms = document.querySelectorAll('.edit-review-form');
+        const reviewContents = document.querySelectorAll('.review-content');
+        const editReviewStars = document.querySelectorAll('.edit-review-form .star');
 
+        editReviewButtons.forEach((editReviewButton, index) => {
+            editReviewButton.addEventListener('click', () => {
+                reviewContents[index].style.display = 'none';
+                editReviewForms[index].style.display = 'block';
 
+                // Pre-fill the textarea with existing review text
+                const existingReviewText = reviewContents[index].textContent;
+                const reviewTextArea = editReviewForms[index].querySelector('textarea[name="comment"]');
+                reviewTextArea.value = existingReviewText;
+            });
 
+            cancelEditButtons[index].addEventListener('click', () => {
+                editReviewForms[index].style.display = 'none';
+                reviewContents[index].style.display = 'block';
+            });
+        });
+
+        editReviewStars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = star.dataset.value;
+                const reviewForm = star.closest('.edit-review-form');
+                const ratingField = reviewForm.querySelector('#rating-field');
+                const stars = reviewForm.querySelectorAll('.star');
+
+                ratingField.value = rating;
+
+                // Reset star styles
+                stars.forEach(s => s.classList.remove('selected'));
+
+                // Add selected class to clicked star and previous stars
+                for (let i = 1; i <= rating; i++) {
+                    reviewForm.querySelector(`[data-value="${i}"]`).classList.add('selected');
+                }
+            });
+        });
+
+        // Add logic to handle delete review buttons here
+        deleteReviewButtons.forEach((deleteReviewButton, index) => {
+            deleteReviewButton.addEventListener('click', () => {
+                // Implement logic to delete the review here
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        const deleteReviewButtons = document.querySelectorAll('.delete-review-button');
+        const reviewContents = document.querySelectorAll('.review-content');
+
+        deleteReviewButtons.forEach((deleteReviewButton, index) => {
+            deleteReviewButton.addEventListener('click', async () => {
+                const reviewId = deleteReviewButton.getAttribute('data-review-id');
+
+                const response = await fetch(`/delete_review/${reviewId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                });
+
+                if (response.ok) {
+                    // Successfully deleted, you might want to reload the page or update the UI as needed
+                    location.reload(); // Refresh the page
+                } else {
+                    console.error('Failed to delete review');
+                }
+            });
+        });
+    });
 
 </script>
 {% endblock content %}

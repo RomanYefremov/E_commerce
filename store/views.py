@@ -8,6 +8,7 @@ from django.contrib import messages
 from .models import Category, Product, Order, OrderItem, ShippingAddress, Customer, Variants, Review
 from django.contrib.auth.forms import UserCreationForm
 from .forms import RegistrationForm, ReviewForm
+from django.db.models import Avg
 import json
 import datetime
 
@@ -52,6 +53,7 @@ def product_detail(request, product_id):
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
     product = get_object_or_404(Product, id=product_id)
     reviews = Review.objects.filter(product=product)
+    review_count = Review.objects.filter(product=product).count()
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -62,6 +64,8 @@ def product_detail(request, product_id):
             return redirect('product_detail', product_id=product.id)
     else:
         form = ReviewForm()
+    average_rating = Review.objects.filter(product=product).aggregate(Avg('rating'))['rating__avg']
+    average_rating = round(average_rating) if average_rating else 0
 
     user_review = Review.objects.filter(product=product, user=request.user).first()
     other_reviews = Review.objects.filter(product=product).exclude(user=request.user).order_by('-created_at')
@@ -78,9 +82,33 @@ def product_detail(request, product_id):
                'cartItems': cartItems,
                'reviews': reviews,
                'form': form,
+               'review_count': review_count,
                'user_review': user_review,
+               'average_rating': average_rating,
                }
     return render(request, 'store/product_detail.html', context)
+
+
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    form = ReviewForm(request.POST or None, instance=review)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('product_detail', product_id=review.product.id)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@login_required
+def delete_review(request, review_id):
+    if request.method == 'POST':
+        review = get_object_or_404(Review, id=review_id, user=request.user)
+        review.delete()
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def cart(request):
@@ -114,7 +142,6 @@ def checkout(request):
 
     context = {'items': items, 'order': order, 'cartItems': cartItems}
     return render(request, 'store/checkout.html', context)
-
 
 
 def updateItem(request):
@@ -152,10 +179,6 @@ def updateItem(request):
     except KeyError as e:
         print('KeyError:', str(e))
         return JsonResponse('Invalid data in request', status=400, safe=False)
-
-
-
-
 
 
 def processOrder(request):

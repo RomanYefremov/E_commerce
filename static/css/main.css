@@ -137,8 +137,9 @@ h1,h2,h3,h4,h5,h6{
     text-align: center;
 }
 .info-with-edit {
-    position: relative;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .info-with-edit button {
@@ -147,6 +148,7 @@ h1,h2,h3,h4,h5,h6{
     align-items: center;
     justify-items: start;
     justify-content: start;
+    margin-right: 10px;
 }
 .btn-outline-secondary-detail {
   color: #ffffff;
@@ -458,5 +460,28 @@ h1,h2,h3,h4,h5,h6{
     transition: all 0.3s ease; /* Adding smooth transition */
 }
 
+#back-to-top {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99;
+    font-size: 24px;
+    background-color: #35729f;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    padding: 10px;
+    transition: opacity 0.2s;
+}
+
+#back-to-top:hover {
+    background-color: #224d69;
+}
+
+#back-to-top.show {
+    display: block;
+}
 
 
