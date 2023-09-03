@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 from django.utils.html import format_html
-from .models import Product, Category, Customer, Order, OrderItem, ShippingAddress, Variants, Size, ProductImage, Color, Review
+from .models import Product, Category, Customer, Order, OrderItem, ShippingAddress, Variants, Size, ProductImage, Color, Review, Carousel
 
 
 class ProductImageInline(admin.TabularInline):
@@ -85,6 +85,10 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ('product', 'user', 'rating', 'created_at')
 
 
+class CarouselAdmin(admin.ModelAdmin):
+    list_display = ('title', 'image')
+
+
 admin.site.register(Category)
 admin.site.register(Customer)
 admin.site.register(Product, ProductAdmin)
@@ -95,3 +99,5 @@ admin.site.register(Color, ColorAdmin)
 admin.site.register(Size, SizeAdmin)
 admin.site.register(Variants, VariantsAdmin)
 admin.site.register(Review, ReviewAdmin)
+admin.site.register(Carousel)
+

@@ -29,9 +29,12 @@
             <h4 style="margin-top: 1.5rem;"><strong>Price:</strong> ${{ product.price }}</h4>
 
             <p style="margin-top: 1.5rem;"><strong>Material:</strong> {{ product.material }}</p>
-            <p style="margin-bottom: 1.5rem;"><strong>Sole:</strong> {{ product.additional_material }}</p>
+            <hr>
+            <p style="margin-top: 1.5rem;"><strong>Sole:</strong> {{ product.additional_material }}</p>
+            <hr>
             <p>{{ product.description }}</p>
-                <form method="POST" action="{% url 'update_item' %}" class="product-form">
+            <hr>
+                <form method="POST" action="{% url 'update_item' %}" class="product-form" style="border: solid;border-radius: 12px;border-color: #80808036;padding: 10px;">
                     {% csrf_token %}
                         <div class="form-group size-selection">
                             <label for="size">Select Size:</label>
@@ -123,7 +126,11 @@
     {% endfor %}
 </div>
 {#<div class="blur-overlay"></div>#}
-<button class="btn show-more-button btn-outline-light">Show More</button>
+    <div style="display: grid;
+        justify-content: center;
+        justify-items: center;">
+        <button class="show-more-button"> Show More</button>
+    </div>
     <style>
     .reviews-container {
         position: relative; /* Make it a stacking context for absolute positioning */
@@ -136,6 +143,13 @@
         padding: 10px;
         text-align: center;
         cursor: pointer;
+        background-color: rgba(29, 26, 57, 0.11);
+        color: #1d1a39;
+        border: none;
+        border-radius: 30px;
+    }
+    .show-more-button:hover {
+        background-color: rgba(29, 26, 57, 0.21);
     }
     .reviews-container.expanded {
     max-height: none;

@@ -1,13 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.urls import reverse
-from django.contrib.auth import get_user_model
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -19,11 +16,11 @@ class Category(models.Model):
 
 class Customer(models.Model):
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=50, null=True)  # New field for first name
-    last_name = models.CharField(max_length=50, null=True)  # New field for last name
+    first_name = models.CharField(max_length=50, null=True)
+    last_name = models.CharField(max_length=50, null=True)
     email = models.CharField(max_length=200)
-    phone = models.CharField(max_length=20)  # Added phone field
-    city = models.CharField(max_length=100)  # New field for city
+    phone = models.CharField(max_length=20)
+    city = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
 
     def __str__(self):
@@ -47,7 +44,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.FloatField()
     is_available = models.BooleanField(default=True)
-    quantity = models.IntegerField(default=0)  # Add the quantity field
+    quantity = models.IntegerField(default=0)
     description = models.TextField(blank=True, null=True)
     material = models.TextField(blank=True, null=True)
     additional_material = models.TextField(blank=True, null=True)
@@ -69,6 +66,7 @@ class Product(models.Model):
 
     def get_description(self):
         return self.description
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -147,7 +145,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, default=None)
     quantity = models.IntegerField(default=0, null=True, blank=True)
-    variant = models.ForeignKey(Variants, on_delete=models.SET_NULL, null=True)  # Add this line
+    variant = models.ForeignKey(Variants, on_delete=models.SET_NULL, null=True)
     is_paid_and_ready = models.BooleanField(default=False, verbose_name="Ready for Shipment")
     date_added = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
@@ -165,13 +163,12 @@ class ShippingAddress(models.Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
     city = models.CharField(max_length=200, null=False)
     address = models.CharField(max_length=200, null=False)
-    phone_number = models.CharField(max_length=200, null=False)  # Use appropriate max_length for phone numbers
+    phone_number = models.CharField(max_length=200, null=False)
     email = models.EmailField(max_length=200, null=False)
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.address
-
 
 
 class UserProfile(models.Model):
@@ -226,3 +223,13 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name}"
+
+
+class Carousel(models.Model):
+    image = models.ImageField(upload_to='carousel_images/')
+    title = models.CharField(max_length=100)
+    sub_title = models.CharField(max_length=100)
+    category = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.title

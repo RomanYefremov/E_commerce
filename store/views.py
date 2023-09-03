@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.contrib import messages
-from .models import Category, Product, Order, OrderItem, ShippingAddress, Customer, Variants, Review
+from .models import Category, Product, Order, OrderItem, ShippingAddress, Customer, Variants, Review, Carousel
 from django.contrib.auth.forms import UserCreationForm
 from .forms import RegistrationForm, ReviewForm
 from django.db.models import Avg
@@ -36,24 +36,36 @@ def store(request):
     paginator = Paginator(products, 15)  # 15 products per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    first_banners = Carousel.objects.filter(category="first")
+    second_banners = Carousel.objects.filter(category="second")
     context = {
         'page_obj': page_obj,
         'cartItems': cartItems,
-        'categories': categories
+        'categories': categories,
+        'first_banners': first_banners,
+        'second_banners': second_banners,
     }
+
     return render(request, 'store/store.html', context)
 
 
 def product_detail(request, product_id):
     customer = None  # Initialize customer as None by default
+    product = get_object_or_404(Product, id=product_id)
     if request.user.is_authenticated:
         customer = request.user.customer
+        user_review = Review.objects.filter(product=product, user=request.user).first()
+        other_reviews = Review.objects.filter(product=product).exclude(user=request.user).order_by('-created_at')
+        user_has_review = user_review is not None
+        # If the user has left a review, move it to the beginning of the list
+        if user_review:
+            reviews = [user_review] + list(other_reviews)
+        else:
+            reviews = list(other_reviews)
 
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
-    product = get_object_or_404(Product, id=product_id)
     reviews = Review.objects.filter(product=product)
-    review_count = Review.objects.filter(product=product).count()
+    review_count = reviews.count()
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -67,15 +79,6 @@ def product_detail(request, product_id):
     average_rating = Review.objects.filter(product=product).aggregate(Avg('rating'))['rating__avg']
     average_rating = round(average_rating) if average_rating else 0
 
-    user_review = Review.objects.filter(product=product, user=request.user).first()
-    other_reviews = Review.objects.filter(product=product).exclude(user=request.user).order_by('-created_at')
-    user_has_review = user_review is not None
-    # If the user has left a review, move it to the beginning of the list
-    if user_review:
-        reviews = [user_review] + list(other_reviews)
-    else:
-        reviews = list(other_reviews)
-
     cartItems = order.get_cart_items
     # sizes = SizeVariant.objects.all()
     context = {'product': product,
@@ -83,7 +86,7 @@ def product_detail(request, product_id):
                'reviews': reviews,
                'form': form,
                'review_count': review_count,
-               'user_review': user_review,
+               # 'user_review': user_review,
                'average_rating': average_rating,
                }
     return render(request, 'store/product_detail.html', context)
